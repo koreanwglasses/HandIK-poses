@@ -12,7 +12,7 @@ import math
 bounds_min = [-9.1, -3.5, 0]
 bounds_max = [5.0,  4.4, 8.0]
 
-grid_steps = [3, 2, 2]
+grid_steps = [1, 5, 1]
 
 
 ####################
@@ -67,6 +67,7 @@ def check_pose():
 
 
 def render(filename):
+    print("\n")
     bpy.context.scene.render.filepath = filename
     bpy.ops.render.render(write_still=True)
 
@@ -106,7 +107,6 @@ for conf in permutations(range(grid_points.shape[0]), len(targets)):
     if not check_pose():
         continue
 
-    render(f"output/{pose_id}.png")
+    render(f"C:/Users/fchoi/Documents/git/HandIK-poses/output/{pose_id}.png")
     pose_id += 1
 
-    break
