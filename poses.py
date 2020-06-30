@@ -4,6 +4,7 @@ import numpy as np
 import bmesh
 from itertools import permutations
 import math
+import os
 
 ################################
 #### Grid Search Parameters ####
@@ -35,6 +36,9 @@ fingertip_bones = {
 #### Utility Functions ####
 ###########################
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+if SCRIPT_DIR.endswith(".blend"):
+    SCRIPT_DIR = os.path.dirname(SCRIPT_DIR)
 
 def count_permutations(n, r):
     result = 1
@@ -103,10 +107,11 @@ for conf in permutations(range(grid_points.shape[0]), len(targets)):
 
     total_tried += 1
     # if total_tried % 10 == 0:
-    print(f"\rTried: {total_tried}/{num_to_try}, Exported: {pose_id}", end="")
+    print(f"Tried: {total_tried}/{num_to_try}, Exported: {pose_id}", end="\r")
     if not check_pose():
         continue
 
-    render(f"C:/Users/fchoi/Documents/git/HandIK-poses/output/{pose_id}.png")
+    render(os.path.join(SCRIPT_DIR, f"output/{pose_id}.png"))
     pose_id += 1
 
+print()
