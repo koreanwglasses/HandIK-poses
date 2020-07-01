@@ -5,15 +5,16 @@ import bmesh
 from itertools import permutations
 import math
 import os
+import json
 
 ################################
 #### Grid Search Parameters ####
 ################################
 
 bounds_min = [-9.1, -3.5, 0]
-bounds_max = [5.0,  4.4, 8.0]
+bounds_max = [5.0,  4.4, 3]
 
-grid_steps = [1, 5, 1]
+grid_steps = [1, 5, 2]
 
 
 ####################
@@ -39,6 +40,7 @@ fingertip_bones = {
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 if SCRIPT_DIR.endswith(".blend"):
     SCRIPT_DIR = os.path.dirname(SCRIPT_DIR)
+
 
 def count_permutations(n, r):
     result = 1
@@ -74,6 +76,40 @@ def render(filename):
     print("\n")
     bpy.context.scene.render.filepath = filename
     bpy.ops.render.render(write_still=True)
+
+
+def export_targets(filename):
+    result = {}
+    for target in fingertip_targets:
+        target_name = str(target.name)
+        result[target_name] = {
+            "location": [
+                 target.location.x, 
+                 target.location.y, 
+                 target.location.z
+            ] 
+        }
+    
+    with open(filename, "w") as f:
+        f.write(json.dumps(result))
+
+
+def matrix_to_list(matrix):
+    return [
+        list(matrix[0]),
+        list(matrix[1]),
+        list(matrix[2]),
+        list(matrix[3])
+    ]
+
+def export_armature_pose(filename):
+    result = {}
+    for bone in pose.bones:
+        bone_name = str(bone.name)
+        result[bone_name] = {"matrix": matrix_to_list(bone.matrix)}
+
+    with open(filename, "w") as f:
+        f.write(json.dumps(result))
 
 #####################
 #### Grid Search ####
@@ -112,6 +148,8 @@ for conf in permutations(range(grid_points.shape[0]), len(targets)):
         continue
 
     render(os.path.join(SCRIPT_DIR, f"output/{pose_id}.png"))
+    export_targets(os.path.join(SCRIPT_DIR, f"output/{pose_id}-targets.json"))
+    export_armature_pose(os.path.join(SCRIPT_DIR, f"output/{pose_id}-pose.json"))
     pose_id += 1
 
 print()
